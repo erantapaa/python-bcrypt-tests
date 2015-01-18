@@ -1,0 +1,36 @@
+#!/usr/bin/env perl
+#
+# vi: ft=pl
+#
+# Usage: pl-expand-key count salt key
+
+use strict;
+use warnings;
+use Crypt::Eksblowfish;
+use Data::Dumper;
+
+my ($count, $salt, $key) = @ARGV;
+die "bad count\n" unless $count >= 0;
+die "bad salt\n" unless length($salt) == 16;
+die "bad key\n" unless length($key) > 0;
+
+# my $salt = "1234567890123456";
+# my $key = "asd";
+my $rounds = 1 << $count;
+print "rounds: ", $rounds, "\n";
+my $bf = Crypt::Eksblowfish->new($count, $salt, $key);
+my $parray = $bf->p_array;
+while (@$parray) {
+  my @ps = splice(@$parray, 0, 8);
+  print "p boxes: ", join(' ', map { sprintf("%08x", $_) } @ps ), "\n";
+}
+my $i = 0;
+for my $sarray (@{ $bf->s_boxes } ) {
+  my $prefix = "s box $i: ";
+  while (@$sarray) {
+    my @ps = splice(@$sarray, 0, 8);
+    print $prefix, join(' ', map { sprintf("%08x", $_) } @ps ), "\n";
+  }
+  $i++;
+}
+

@@ -1,0 +1,8 @@
+#!/bin/sh
+#
+# cmp-expand-key count salt key
+
+./pl-expand-key "$@" > out-pl
+./py-expand-key "$@" > out-py
+diff -u out-pl out-py
+
